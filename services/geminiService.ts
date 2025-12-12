@@ -2,8 +2,7 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { Category, NewsItem, Briefing, AnalysisData } from "../types";
 
 // Helper to get safe API Key
-const getApiKey = () => process.env.API_KEY || '';
-//  const getApiKey = "AIzaSyAGlrKEf84lcQ-qAQrz1q9ntpq1hecRCLo";
+const getApiKey = () => process.env.GEMINI_API_KEY || '';
 /**
  * Fetches latest news using Gemini 2.5 Flash with Google Search Grounding
  * FIX: Removed responseMimeType: 'application/json' to allow Google Search tool to work.
