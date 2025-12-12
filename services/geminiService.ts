@@ -2,7 +2,7 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { Category, NewsItem, Briefing, AnalysisData } from "../types";
 
 // Helper to get safe API Key
-// const getApiKey = () => process.env.API_KEY || '';
+const getApiKey = () => process.env.API_KEY || '';
 //  const getApiKey = "AIzaSyAGlrKEf84lcQ-qAQrz1q9ntpq1hecRCLo";
 /**
  * Fetches latest news using Gemini 2.5 Flash with Google Search Grounding
@@ -10,7 +10,7 @@ import { Category, NewsItem, Briefing, AnalysisData } from "../types";
  * Manual JSON parsing is implemented.
  */
 export const fetchNewsWithGemini = async (): Promise<NewsItem[]> => {
-  const apiKey = "AIzaSyAGlrKEf84lcQ-qAQrz1q9ntpq1hecRCLo";
+  const apiKey = getApiKey();
   if (!apiKey) {
     console.warn("No API Key found. Using mock data.");
     return []; // Caller handles fallback
@@ -108,7 +108,7 @@ export const fetchNewsWithGemini = async (): Promise<NewsItem[]> => {
  * Implements the 7-step Investor Analysis Methodology
  */
 export const analyzeArticle = async (newsItem: NewsItem): Promise<AnalysisData | null> => {
-  const apiKey = "AIzaSyAGlrKEf84lcQ-qAQrz1q9ntpq1hecRCLo";
+  const apiKey = getApiKey();
   if (!apiKey) return null;
 
   const ai = new GoogleGenAI({ apiKey });
@@ -265,7 +265,7 @@ export const analyzeArticle = async (newsItem: NewsItem): Promise<AnalysisData |
  * Generates the "Morning Digest" / Daily Briefing
  */
 export const generateDailyBriefing = async (articles: NewsItem[]): Promise<Briefing> => {
-    const apiKey = "AIzaSyAGlrKEf84lcQ-qAQrz1q9ntpq1hecRCLo";
+    const apiKey = getApiKey();
     if (!articles.length || !apiKey) {
         return {
             date: new Date().toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
