@@ -11,17 +11,24 @@ interface NewsDetailModalProps {
 export const NewsDetailModal: React.FC<NewsDetailModalProps> = ({ item, onClose }) => {
   const [analysis, setAnalysis] = useState<AnalysisData | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     if (item) {
       if (item.analysis) {
         setAnalysis(item.analysis);
         setLoading(false);
+        setError(false);
       } else {
         setAnalysis(null);
         setLoading(true);
+        setError(false);
         analyzeArticle(item).then(result => {
-           setAnalysis(result);
+           if (result) {
+               setAnalysis(result);
+           } else {
+               setError(true);
+           }
            setLoading(false);
         });
       }
@@ -82,8 +89,17 @@ export const NewsDetailModal: React.FC<NewsDetailModalProps> = ({ item, onClose 
                 </div>
             )}
 
+            {/* Error State */}
+            {!loading && error && (
+                <div className="flex flex-col items-center justify-center py-12 text-center bg-slate-50 rounded-xl border border-dashed border-slate-300">
+                    <AlertTriangle size={48} className="text-amber-500 mb-4" />
+                    <h3 className="text-lg font-bold text-slate-700">Chưa thể phân tích</h3>
+                    <p className="text-slate-500 mb-4 text-sm max-w-sm mx-auto">Hệ thống AI đang bận hoặc nội dung tin tức chưa đủ dữ kiện để phân tích chi tiết.</p>
+                </div>
+            )}
+
             {/* Analysis Dashboard */}
-            {!loading && analysis && (
+            {!loading && !error && analysis && analysis.assessment && analysis.strategy && (
                 <>
                 {/* 1. Dashboard Metrics */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -122,12 +138,12 @@ export const NewsDetailModal: React.FC<NewsDetailModalProps> = ({ item, onClose 
 
                 {/* 2. Context & Tags */}
                 <div className="flex flex-wrap gap-2">
-                    {analysis.segments.map(seg => (
+                    {analysis.segments && analysis.segments.map(seg => (
                         <span key={seg} className="px-3 py-1 bg-blue-50 text-blue-700 text-sm font-medium rounded-lg border border-blue-100">
                             #{seg}
                         </span>
                     ))}
-                    {analysis.regions.map(reg => (
+                    {analysis.regions && analysis.regions.map(reg => (
                         <span key={reg} className="px-3 py-1 bg-purple-50 text-purple-700 text-sm font-medium rounded-lg border border-purple-100">
                             @{reg}
                         </span>
@@ -147,16 +163,17 @@ export const NewsDetailModal: React.FC<NewsDetailModalProps> = ({ item, onClose 
                         Phân tích tác động đa chiều
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <AnalysisBlock icon={<DollarSign size={18}/>} title="Giá & Thị trường" content={analysis.impacts.price} color="blue" />
-                        <AnalysisBlock icon={<Scale size={18}/>} title="Pháp lý & Quy hoạch" content={analysis.impacts.legal} color="slate" />
-                        <AnalysisBlock icon={<Zap size={18}/>} title="Tâm lý Nhà đầu tư" content={analysis.impacts.psychology} color="amber" />
-                        <AnalysisBlock icon={<TrendingUp size={18}/>} title="Thanh khoản" content={analysis.impacts.liquidity} color="emerald" />
-                        <AnalysisBlock icon={<CloudRain size={18}/>} title="Rủi ro thiên tai" content={analysis.impacts.disaster} color="rose" />
-                        <AnalysisBlock icon={<Activity size={18}/>} title="Tài chính & Vốn" content={analysis.impacts.finance} color="indigo" />
+                        <AnalysisBlock icon={<DollarSign size={18}/>} title="Giá & Thị trường" content={analysis.impacts?.price || 'Chưa rõ'} color="blue" />
+                        <AnalysisBlock icon={<Scale size={18}/>} title="Pháp lý & Quy hoạch" content={analysis.impacts?.legal || 'Chưa rõ'} color="slate" />
+                        <AnalysisBlock icon={<Zap size={18}/>} title="Tâm lý Nhà đầu tư" content={analysis.impacts?.psychology || 'Chưa rõ'} color="amber" />
+                        <AnalysisBlock icon={<TrendingUp size={18}/>} title="Thanh khoản" content={analysis.impacts?.liquidity || 'Chưa rõ'} color="emerald" />
+                        <AnalysisBlock icon={<CloudRain size={18}/>} title="Rủi ro thiên tai" content={analysis.impacts?.disaster || 'Chưa rõ'} color="rose" />
+                        <AnalysisBlock icon={<Activity size={18}/>} title="Tài chính & Vốn" content={analysis.impacts?.finance || 'Chưa rõ'} color="indigo" />
                     </div>
                 </div>
 
                 {/* 4. Special Focus: Second Home / Highlands */}
+                {analysis.secondHome && (
                 <div className="bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-100 rounded-xl p-5 relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-4 opacity-10 text-indigo-900">
                         <CloudRain size={120} />
@@ -184,6 +201,7 @@ export const NewsDetailModal: React.FC<NewsDetailModalProps> = ({ item, onClose 
                         </div>
                     </div>
                 </div>
+                )}
 
                 {/* 5. Strategy Actions */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -192,7 +210,7 @@ export const NewsDetailModal: React.FC<NewsDetailModalProps> = ({ item, onClose 
                             <TrendingUp className="mr-2" size={18} /> Cơ hội (Opportunities)
                         </h3>
                         <ul className="space-y-2">
-                            {analysis.strategy.opportunities.map((op, idx) => (
+                            {analysis.strategy.opportunities && analysis.strategy.opportunities.map((op, idx) => (
                                 <li key={idx} className="flex items-start text-sm text-slate-700 bg-emerald-50/50 p-2.5 rounded-lg border border-emerald-100">
                                     <span className="text-emerald-500 mr-2 font-bold">•</span> {op}
                                 </li>
@@ -204,7 +222,7 @@ export const NewsDetailModal: React.FC<NewsDetailModalProps> = ({ item, onClose 
                             <AlertTriangle className="mr-2" size={18} /> Rủi ro (Risks)
                         </h3>
                         <ul className="space-y-2">
-                            {analysis.strategy.risks.map((r, idx) => (
+                            {analysis.strategy.risks && analysis.strategy.risks.map((r, idx) => (
                                 <li key={idx} className="flex items-start text-sm text-slate-700 bg-rose-50/50 p-2.5 rounded-lg border border-rose-100">
                                     <span className="text-rose-500 mr-2 font-bold">•</span> {r}
                                 </li>

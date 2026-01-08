@@ -1,3 +1,4 @@
+
 export enum Category {
   MARKET_PRICE = 'Thị trường & Giá',
   POLICY_LEGAL = 'Chính sách & Pháp lý',
@@ -46,18 +47,27 @@ export interface NewsItem {
   category: Category;
   summaryPoints: string[]; // 3-5 points
   url?: string;
-  
-  // Legacy fields (optional, used for fallback or simple display)
   insight?: string;
   opportunity?: string;
   risk?: string;
   fullContent?: string;
-
-  // New Deep Analysis Data
   analysis?: AnalysisData;
 }
 
 export interface Briefing {
   date: string;
   highlights: string[];
+}
+
+export interface MarketReport {
+  title: string;
+  period: 'Hàng tuần' | 'Hàng tháng';
+  macroSentiment: string;
+  keyTakeaways: string[];
+  sectorOutlook: {
+    sector: string;
+    outlook: 'Tích cực' | 'Trung lập' | 'Tiêu cực';
+    reason: string;
+  }[];
+  strategicAdvice: string;
 }
